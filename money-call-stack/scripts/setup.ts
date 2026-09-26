@@ -61,7 +61,7 @@ async function withRetry<T>(fn: () => Promise<T>, label: string, attempts = 4): 
 // manual funding.
 async function ensureFunded(connection: ReturnType<typeof getConnection>, pubkey: PublicKey, label: string): Promise<boolean> {
   const balance = await withRetry(() => connection.getBalance(pubkey), `getBalance(${label})`);
-  if (balance >= 0.05 * LAMPORTS_PER_SOL) {
+  if (balance >= 0.005 * LAMPORTS_PER_SOL) {
     console.log(`${label} already funded (${(balance / LAMPORTS_PER_SOL).toFixed(3)} SOL)`);
     return true;
   }
