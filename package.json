@@ -1,0 +1,26 @@
+{
+  "name": "money-call-stack",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup": "node --loader ts-node/esm scripts/01-setup.ts",
+    "init-vault": "node --loader ts-node/esm scripts/02-init-vault.ts",
+    "delegate": "node --loader ts-node/esm scripts/03-delegate.ts",
+    "pay-success": "node --loader ts-node/esm scripts/04-pay-success.ts",
+    "pay-reject": "node --loader ts-node/esm scripts/05-pay-reject.ts",
+    "demo": "npm run setup && npm run init-vault && npm run delegate && npm run pay-success && npm run pay-reject",
+    "serve": "npx serve frontend -l 5173",
+    "import-key": "node --loader ts-node/esm scripts/import-key.ts"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.95.3",
+    "@solana/spl-token": "^0.4.9",
+    "bs58": "^6.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "@types/node": "^22.7.5"
+  }
+}
