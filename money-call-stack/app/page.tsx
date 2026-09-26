@@ -1,6 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+// Additive-only CopilotKit layer — see components/CopilotPanel.tsx. To back
+// this out entirely before the demo, delete this import and the single
+// <CopilotPanel /> line near the bottom of this file. Nothing else changes.
+import { CopilotPanel } from "@/components/CopilotPanel";
 
 type AccountView = {
   label: string;
@@ -101,7 +105,10 @@ export default function Home() {
     refreshState();
   }, []);
 
-  async function runAction(key: string, traceLabel: string, url: string, body?: unknown) {
+  // useCallback gives this a stable identity across renders, which the
+  // CopilotKit panel below needs — its tools register once and call whatever
+  // runAction reference they closed over at registration time.
+  const runAction = useCallback(async (key: string, traceLabel: string, url: string, body?: unknown) => {
     setBusy(key);
     try {
       const result = await post(url, body);
@@ -122,7 +129,7 @@ export default function Home() {
     } finally {
       setBusy(null);
     }
-  }
+  }, []);
 
   const steps = [
     {
@@ -244,6 +251,8 @@ export default function Home() {
           </div>
         ))}
       </div>
+
+      <CopilotPanel state={state} trace={trace} runAction={runAction} />
     </main>
   );
 }

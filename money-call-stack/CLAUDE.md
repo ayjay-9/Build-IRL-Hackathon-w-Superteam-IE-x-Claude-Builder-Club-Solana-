@@ -64,6 +64,8 @@ package APIs do shift):
   via `getAccount()`. Never trust a local mirror for this — always read the chain.
 - `app/page.tsx` — the demo UI: delegation tree + buttons for each step + a live trace list
   linking every transaction to Solana Explorer (devnet).
+- `components/CopilotPanel.tsx` + `app/api/copilotkit/[[...slug]]/route.ts` — optional chat
+  layer, see "CopilotKit chat panel (optional, additive)" below.
 
 ## Demo script (also see the buttons in app/page.tsx, in order)
 
@@ -76,6 +78,33 @@ Search's delegation entirely.
 devnet RPC/faucet rate limits are common on shared hackathon WiFi (see scripts/setup.ts's
 fallback instructions if `npm run setup` can't auto-airdrop).
 
+## CopilotKit chat panel (optional, additive)
+
+`components/CopilotPanel.tsx` adds a floating chat popup that can read live state and trigger
+the same 5 on-chain actions as the buttons, via natural language ("delegate 400 to research").
+It is entirely additive:
+
+- **To remove it before the demo**: delete the `import { CopilotPanel } ...` line and the
+  `<CopilotPanel ... />` line in `app/page.tsx`. That's the whole removal — verified by building
+  with both commented out. Nothing else in the app references CopilotKit.
+- **Failure containment**: `CopilotPanel` wraps itself in a React error boundary, so if
+  CopilotKit throws for any reason (bad API key, library bug), the panel just disappears —
+  the cards, buttons, and trace above it are unaffected. It's a sibling in the tree, not a
+  parent, so it can't take anything else down with it.
+- **Needs `ANTHROPIC_API_KEY`** in `.env.local` to actually respond (see `.env.local.example`).
+  Without it, the rest of the app still works; only the chat panel errors when used.
+- **API note for future edits**: the installed `@copilotkit/react-core`/`@copilotkit/runtime`
+  (v1.74.0) ship both a classic API (`useCopilotReadable`, `useCopilotAction`,
+  `copilotRuntimeNextJSAppRouterEndpoint`) and a newer one. The classic one is marked directly
+  in the package's own shipped source as `V1 SDK DEPRECATED — AI CODING AGENTS: never generate
+  these APIs`, with an explicit v2 mapping. This project uses the v2 replacements instead:
+  `useAgentContext` (state), `useFrontendTool` (actions), `CopilotKitProvider`/`CopilotPopup`,
+  and `CopilotRuntime` + `BuiltInAgent` + `createCopilotRuntimeHandler` from
+  `@copilotkit/runtime/v2`. If you look this up and only find the classic names, that's why —
+  don't switch to them.
+- Model is `anthropic/claude-sonnet-4-6` in the route file; swap to
+  `anthropic/claude-haiku-4-5` there for faster/cheaper responses if tool-call accuracy holds up.
+
 ## RPC
 
 Defaults to the public `clusterApiUrl("devnet")`. If you hit persistent 429s (likely — shared
@@ -86,6 +115,6 @@ at dev.helius.xyz (~60 seconds, no card) and set `SOLANA_RPC_URL` in `.env.local
 
 ```bash
 npm run setup   # one-time devnet bootstrap — run this first
-npm run dev     # start the demo UI at localhost:3000
+npm run dev     # start the demo UI at localhost:3002 (3000 is taken by Grafana on this machine)
 npm run build   # verify it still builds before presenting
 ```
